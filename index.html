@@ -8,7 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
    
     <style>
-        /* ... (ملفات CSS القديمة تبقى كما هي، للحفاظ على التصميم) ... */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Naskh Arabic', serif;
+        }
+
         :root {
             --primary-color: #6366f1;
             --primary-dark: #4f46e5;
@@ -868,7 +874,7 @@
                         <strong>📋 إرشادات الاستخدام:</strong>
                         <p>1. تم ملء العوامل الزمنية والفلكية **تلقائياً (ذكاء مُحاكى)**.</p>
                         <p>2. املأ **السؤال** و**الاسم**، أو عدّل البيانات التلقائية حسب حاجتك.</p>
-                        <p>3. اضغط على "بدء الحساب الجفري".</p>
+                        <p>3. اضغط على "بدء الحساب الجفري" (يصبح مفعلاً بعد ملء جميع الحقول المطلوبة).</p>
                     </div>
                    
                     <div class="step">
@@ -1044,14 +1050,8 @@
 
     <script>
         // ==============================================================================
-        // ملف الثوابت (constants.js) - لا تغيير
+        // ملف الثوابت (constants.js)
         // ==============================================================================
-
-        // النظام الجفري المتكامل - ملف الثوابت
-        // إصدار متقدم بأقصى دقة حسابية
-        // ============================================
-        // 1. الجداول الثابتة الأساسية
-        // ============================================
 
         // الأبجدية الكبيرة (حساب الجمل الكبير)
         const ABJAD_KABIR = {
@@ -1227,7 +1227,7 @@
         };
 
         // ============================================
-        // 3. دوال المساعدة العامة - لا تغيير
+        // 3. دوال المساعدة العامة 
         // ============================================
        
         function isValidArabicChar(char) {
@@ -1366,7 +1366,7 @@
         };
 
         // ------------------------------------------------------------------------------
-        // ملف النواة الجفرية (jafr-core.js) - لا تغيير
+        // ملف النواة الجفرية (jafr-core.js)
         // ------------------------------------------------------------------------------
 
         class JafrCore {
@@ -1556,7 +1556,6 @@
                     const nisbatVal = this.constants.getNisbat(num1, num2); 
                     result.push(nisbatVal);
                 }
-                // يجب أن تكون 15 (طول سطر النسب)
                 this.steps.asasNazir1 = result.slice(0, 15);
                 return this.steps.asasNazir1;
             }
@@ -1810,7 +1809,7 @@
                 this.status = 'processing';
                 this.startTime = new Date();
                
-                // استخدم `await` هنا لضمان الترتيب
+                // استخدام await لضمان الترتيب وظهور التقدم
                 this.calculateEntrances(); await this.updateProgress(10, 'حساب المداخل الأربعة');
                 this.generateAsas(); await this.updateProgress(20, 'توليد السطر الأول (الأساس)');
                 this.generateNazir(); await this.updateProgress(30, 'حساب السطر الثاني (النظيرة)');
@@ -1856,7 +1855,7 @@
         window.JafrCore = JafrCore;
 
         // ------------------------------------------------------------------------------
-        // ملف واجهة المستخدم (ui-handler.js) - تم التعديل للإصلاح والملء التلقائي
+        // ملف واجهة المستخدم (ui-handler.js) - يحتوي على إصلاح زر الحساب والملء التلقائي
         // ------------------------------------------------------------------------------
 
         class UIHandler {
@@ -1870,15 +1869,19 @@
             initialize() {
                 this.setupEventListeners();
                 this.initializeJafrCore();
-                this.populateAutomaticFields(); // 🚀 الإضافة الجديدة للملء التلقائي
+                this.populateAutomaticFields(); 
                 this.updateSystemStatus();
                 this.showTableTab('abjad'); 
             }
 
             setupEventListeners() {
+                // ربط المستمعين لتحديث حالة النظام عند أي تغيير
                 document.querySelectorAll('.input-field').forEach(input => {
                     input.addEventListener('change', () => this.updateSystemStatus());
                     input.addEventListener('input', () => this.updateSystemStatus());
+                });
+                document.querySelectorAll('select.input-field').forEach(select => {
+                    select.addEventListener('change', () => this.updateSystemStatus());
                 });
             }
 
@@ -1891,12 +1894,11 @@
                 }
             }
             
-            // 🚀 دالة جديدة للملء التلقائي بناءً على الوقت والمذهب الجعفري (محاكاة)
+            // 🚀 دالة الملء التلقائي (محاكاة الذكاء الاصطناعي/الحساب الفلكي)
             populateAutomaticFields() {
                 const today = new Date();
                 
-                // 1. حساب التاريخ الهجري (تقريبياً - بدون API دقيقة للمذهب الجعفري)
-                // نستخدم محلي المتصفح لتحويل التاريخ إلى هجري (غير دقيق للمذهب الجعفري، ولكنه الأفضل بدون backend)
+                // 1. حساب التاريخ الهجري (باستخدام متصفح اللغة العربية - يتبع تقويم أم القرى غالباً)
                 const hijriDate = today.toLocaleDateString('ar-SA-u-ca-islamic', {
                     year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
                 });
@@ -1904,9 +1906,9 @@
                 // تحليل التاريخ (مثال: "الأربعاء، 20 جمادى الآخرة 1447 هـ")
                 const parts = hijriDate.split(' ');
                 
-                const weekday = parts[0].replace('،', '');
-                const month = parts[2];
-                const year = parts[3];
+                const weekday = parts[0].replace('،', '').trim();
+                let month = parts[2].trim();
+                let year = parts[3].replace('هـ', '').trim();
 
                 const daysMap = {
                     'السبت': 'السبت', 'الأحد': 'الأحد', 'الاثنين': 'الاثنين', 'الثلاثاء': 'الثلاثاء', 
@@ -1916,14 +1918,13 @@
                 // 2. الملء التلقائي للبيانات الزمنية
                 document.getElementById('day').value = daysMap[weekday] || '';
                 document.getElementById('month').value = month || '';
-                document.getElementById('year').value = year.replace('هـ', '').trim() || '';
+                document.getElementById('year').value = year || '';
 
-                // 3. محاكاة حساب العوامل الفلكية (بناءً على افتراضات بسيطة للمحاكاة)
+                // 3. محاكاة حساب العوامل الفلكية (توليد عشوائي منطقي)
                 const burujList = Object.keys(window.JafrConstants.BURUJ);
                 const manazilList = Object.keys(window.JafrConstants.MANAZIL_ALQAMAR);
                 const hourLords = ['الشمس', 'القمر', 'المريخ', 'عطارد', 'المشتري', 'الزهرة', 'زحل'];
 
-                // توليد عشوائي (محاكاة للذكاء الاصطناعي الفلكي)
                 const randomIndex = (arr) => Math.floor(Math.random() * arr.length);
                 
                 // الملء التلقائي للبيانات الفلكية
@@ -1936,15 +1937,22 @@
             }
 
 
+            // 🟢 إصلاح المشكلة: التحكم بحالة زر البدء (Disabled)
             updateSystemStatus() {
                 const inputs = this.collectInputs();
-                const allRequiredFilled = 
-                    inputs.question.length > 0 &&
-                    inputs.name.length > 0 &&
+                
+                // شروط الحقول الأساسية التي يجب على المستخدم ملئها
+                const isQuestionFilled = window.JafrConstants.cleanText(inputs.question).length > 2;
+                const isNameFilled = window.JafrConstants.cleanText(inputs.name).length > 1;
+                
+                // شروط الحقول التي تم ملؤها تلقائياً (يجب أن تظل ممتلئة)
+                const isTimeAstroFilled = 
                     inputs.day.length > 0 &&
                     inputs.month.length > 0 &&
                     inputs.year.length > 0 &&
                     inputs.risingSign.length > 0;
+                
+                const allRequiredFilled = isQuestionFilled && isNameFilled && isTimeAstroFilled;
                 
                 const statusElement = document.getElementById('systemStatus');
                 const startBtn = document.getElementById('startBtn');
@@ -1952,15 +1960,24 @@
                 if (statusElement) {
                     if (this.isCalculating) {
                         statusElement.innerHTML = `<span class="result-highlight" style="background: var(--info-bg); color: var(--info-color);">جاري الحساب</span> - يرجى الانتظار...`;
+                        startBtn.disabled = true;
                     } else if (allRequiredFilled) {
                         statusElement.innerHTML = `<span class="result-highlight" style="background: var(--success-bg); color: var(--secondary-color);">جاهز للبدء</span> - جميع المدخلات كاملة`;
+                        // 🟢 تفعيل الزر إذا كانت جميع الحقول الأساسية ممتلئة
                         startBtn.disabled = false;
                     } else {
-                        statusElement.innerHTML = `<span class="result-highlight">ينتظر المدخلات</span> - المدخلات الأساسية غير مكتملة`;
+                        let missingField = '';
+                        if (!isQuestionFilled) missingField = 'السؤال الرئيسي';
+                        else if (!isNameFilled) missingField = 'اسم السائل';
+                        else if (!isTimeAstroFilled) missingField = 'عامل الزمن/الفلك (ناقص)';
+
+                        statusElement.innerHTML = `<span class="result-highlight">ينتظر المدخلات</span> - المفقود: **${missingField}**`;
+                        // 🔴 تعطيل الزر
                         startBtn.disabled = true;
                     }
                 }
                 
+                // تحديث حالة الخطوات في الرئيسية
                 document.getElementById('status-process').textContent = allRequiredFilled ? 'جاهز للتنفيذ' : 'بانتظار المدخلات';
                 document.getElementById('status-process').className = 'step-status ' + (allRequiredFilled ? 'status-processing' : 'status-pending');
                 document.getElementById('step-process').style.borderLeftColor = allRequiredFilled ? 'var(--info-color)' : 'var(--primary-color)';
@@ -1974,7 +1991,6 @@
                 const panel = document.getElementById(panelId);
                 if (panel) {
                     panel.classList.add('active');
-                    // 🚀 الإصلاح: البحث عن الـ nav-tab عن طريق الـ onclick
                     const tab = document.querySelector(`.nav-tab[onclick*="${panelId}"]`);
                     if (tab) tab.classList.add('active');
                     this.currentPanel = panelId;
@@ -1988,6 +2004,12 @@
             async startCalculation() {
                 if (this.isCalculating) {
                     this.showMessage('warning', 'جاري تنفيذ عملية حسابية حالياً');
+                    return;
+                }
+                
+                // 🛑 نقطة الفحص الأخيرة قبل البدء (تكرار لـ updateSystemStatus)
+                if (document.getElementById('startBtn').disabled) {
+                    this.showMessage('error', 'يجب إكمال جميع الحقول المطلوبة (السؤال والاسم) أولاً لتفعيل الزر.');
                     return;
                 }
 
@@ -2009,16 +2031,14 @@
 
                     const result = await this.jafrCore.calculateFullJafr();
                    
-                    // 🚀 الإصلاح الجوهري لمشكلة عدم ظهور النتائج: يتم تحديث واجهة المستخدم هنا
                     this.displayResults(result);
                     this.updateCalculationSteps();
                     this.updateAnalysisPanel();
                     
-                    this.updateSystemStatus(); 
+                    // تحديث حالة إكمال الخطوات في لوحة الرئيسية
                     document.getElementById('status-process').textContent = 'مكتمل';
                     document.getElementById('status-process').className = 'step-status status-completed';
                     document.getElementById('step-process').style.borderLeftColor = 'var(--secondary-color)';
-
                     document.getElementById('status-analysis').textContent = 'مكتمل';
                     document.getElementById('status-analysis').className = 'step-status status-completed';
                     document.getElementById('step-analysis').style.borderLeftColor = 'var(--secondary-color)';
@@ -2026,7 +2046,6 @@
                     this.showMessage('success', '✅ تم الحساب الجفري بنجاح! يمكنك الآن مراجعة التفاصيل.');
                    
                 } catch (error) {
-                    // 🚀 الإصلاح: ضمان عرض رسالة خطأ واضحة
                     console.error('Jafr Calculation Error:', error);
                     this.showMessage('error', `❌ خطأ في الحساب: ${error.message || 'حدث خطأ غير متوقع.'}`);
                 } finally {
@@ -2041,7 +2060,6 @@
                 const inputs = this.collectInputs();
                 const errors = [];
                 
-                // 🚀 الإصلاح: استخدام دالة cleanText لضمان أن النص ليس مجرد مسافات بيضاء
                 if (!inputs.question || window.JafrConstants.cleanText(inputs.question).length < 3) { errors.push('السؤال الرئيسي قصير جداً أو غير واضح'); }
                 if (!inputs.name || window.JafrConstants.cleanText(inputs.name).length < 2) { errors.push('اسم السائل مطلوب'); }
                 if (!inputs.day) { errors.push('اليوم مطلوب'); }
@@ -2067,7 +2085,6 @@
             }
 
             displayResults(result) {
-                // ... (بقية دوال عرض النتائج) ...
                 document.getElementById('finalAnswer').innerHTML = `<div style="color: var(--secondary-color); font-size: 1.2rem;">${result.answer || 'لم يتم تحديد جواب'}</div>`;
 
                 const entrances = result.entrances || {};
@@ -2095,7 +2112,6 @@
                 let html = '<div class="steps-container">';
                 Object.entries(steps).forEach(([key, value], index) => {
                     const stepName = this.jafrCore.getStepName(key);
-                    // 🚀 الإصلاح: استخدام | لفصل العناصر لسهولة القراءة
                     const stepValue = Array.isArray(value) ? value.join(' | ') : value;
                    
                     html += `<div class="step">
@@ -2210,18 +2226,20 @@
 
             showLoading(show) {
                 const overlay = document.getElementById('loadingOverlay'); const startBtn = document.getElementById('startBtn');
-                if (overlay) overlay.style.display = show ? 'flex' : 'none'; if (startBtn) startBtn.disabled = show;
+                if (overlay) overlay.style.display = show ? 'flex' : 'none'; 
+                // يجب أن يعتمد تعطيل الزر على حالة الحساب، وليس فقط على إظهار شاشة التحميل
+                if (startBtn) startBtn.disabled = show; 
             }
 
             showMessage(type, text) {
                 const messageElement = document.getElementById(type === 'success' ? 'main-message' : 'error-message');
                 const infoMessage = document.getElementById('initial-message');
                 
-                // إظهار وإخفاء الرسائل بشكل مؤقت
                 document.getElementById('main-message').style.display = 'none';
                 document.getElementById('error-message').style.display = 'none';
 
                 if (messageElement) {
+                    if (infoMessage) { infoMessage.style.display = 'none'; }
                     messageElement.innerHTML = `<strong>${type === 'success' ? 'نجاح:' : 'خطأ:'}</strong> ${text}`;
                     messageElement.style.display = 'block';
                     setTimeout(() => { 
@@ -2237,7 +2255,8 @@
                     document.getElementById('mainQuestion').value = ''; 
                     document.getElementById('askerName').value = '';
                     document.getElementById('motherName').value = '';
-                    // لا يتم مسح الحقول التلقائية بالكامل
+                    
+                    // يتم مسح جميع حقول الإدخال، ثم إعادة الملء التلقائي
                     document.getElementById('day').value = '';
                     document.getElementById('month').value = '';
                     document.getElementById('year').value = '';
@@ -2275,6 +2294,7 @@
         // ربط الدوال بالـ window والـ UIHandler
         document.addEventListener('DOMContentLoaded', () => {
             window.uiHandler = new UIHandler();
+            // الدوال العالمية للتنقل وإعادة التعيين
             window.switchPanel = (panelId) => window.uiHandler.switchPanel(panelId);
             window.startCalculation = () => window.uiHandler.startCalculation();
             window.resetAll = () => window.uiHandler.resetAll();
